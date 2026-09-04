@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="16.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.29" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\SmartLibrary.Application\SmartLibrary.Application.csproj" />
+    <ProjectReference Include="..\SmartLibrary.Domain\SmartLibrary.Domain.csproj" />
+    <ProjectReference Include="..\SmartLibrary.Infra.Data\SmartLibrary.Infra.Data.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="SmartLibrary.Application/SmartLibrary.Application.csproj" />
+  <Project Path="SmartLibrary.Domain.Tests/SmartLibrary.Domain.Tests.csproj" />
+  <Project Path="SmartLibrary.Domain/SmartLibrary.Domain.csproj" />
+  <Project Path="SmartLibrary.Infra.Data/SmartLibrary.Infra.Data.csproj" />
+  <Project Path="SmartLibrary.Infra.Ioc/SmartLibrary.Infra.Ioc.csproj" />
+  <Project Path="SmartLibrary/SmartLibrary.API.csproj" />
+</Solution>
