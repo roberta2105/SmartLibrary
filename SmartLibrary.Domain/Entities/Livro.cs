@@ -148,7 +148,7 @@ namespace SmartLibrary.Domain.Entities
             DomainExceptionValidation.When(categoriaId <= 0,
                 "O ID da categoria é inválido.");
 
-            DomainExceptionValidation.When(quantidadeTotal <= 0,
+            DomainExceptionValidation.When(quantidadeTotal < 0,
                 "A quantidade total deve ser maior do que zero.");
         }
     }

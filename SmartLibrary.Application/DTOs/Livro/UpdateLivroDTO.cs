@@ -37,6 +37,6 @@ public class UpdateLivroDTO
     public int CategoriaId { get; set; }
 
     [Required(ErrorMessage = "A quantidade total é obrigatória!")]
-    [Range(1, 1000, ErrorMessage = "A quantidade total deve estar entre 1 e 1000.")]
+    //[Range(1, 1000, ErrorMessage = "A quantidade total deve estar entre 1 e 1000.")]
     public int QuantidadeTotal { get; set; }
 }

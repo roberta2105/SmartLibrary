@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CleanArchMvc_V2.Domain.Validation;
+using SmartLibrary.Application.DTOs.Categoria;
 using SmartLibrary.Application.DTOs.Livro;
 using SmartLibrary.Application.Interfaces;
 using SmartLibrary.Domain.Entities;
@@ -73,7 +74,14 @@ public class LivroService : ILivroService
             throw new DomainExceptionValidation(
                 "A categoria informada é inválida.");
 
-        var livro = _mapper.Map<Livro>(livroDto);
+        var livro = new Livro(
+            livroDto.Titulo,
+            livroDto.Descricao,
+            livroDto.Autor,
+            livroDto.DataPublicacao,
+            livroDto.Isbn,
+            livroDto.CategoriaId,
+            livroDto.QuantidadeTotal);
 
         await _livroRepository.CreateAsync(livro);
         await _unitOfWork.CommitAsync();
@@ -106,8 +114,7 @@ public class LivroService : ILivroService
             livroDto.DataPublicacao,
             livroDto.Isbn,
             livroDto.CategoriaId,
-            livroDto.QuantidadeTotal
-        );
+            livroDto.QuantidadeTotal);
 
         await _livroRepository.UpdateAsync(livro);
         await _unitOfWork.CommitAsync();

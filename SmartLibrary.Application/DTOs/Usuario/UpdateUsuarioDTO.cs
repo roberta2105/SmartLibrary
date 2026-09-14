@@ -1,20 +1,15 @@
-﻿using SmartLibrary.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SmartLibrary.Application.DTOs.Usuario;
 
 public class UpdateUsuarioDTO
 {
-    [Key]
-    public int Id { get; set; }
+   /* [Required]
+    public string Id { get; set; }*/
 
     [Required(ErrorMessage = "O nome é obrigatório!")]
     [MaxLength(100)]
     public string Nome { get; set; } = string.Empty;
-
-
-    [Required(ErrorMessage = "O perfil é obrigatório!")]
-    public PerfilUsuario Perfil { get; set; } = PerfilUsuario.Usuario;
 
 
     [Required(ErrorMessage = "O email é obrigatório!")]

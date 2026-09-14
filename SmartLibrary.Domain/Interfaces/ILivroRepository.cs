@@ -13,6 +13,7 @@ public interface ILivroRepository : IRepository<Livro>
         int? categoriaId = null,
         string? categoriaNome = null
     );
+    Task<Livro?> GetByIdAsync(int id);
     Task<Livro?> GetByIsbnAsync(string isbn);
     Task<bool> HasActiveEmprestimoAsync(int livroId);
 }

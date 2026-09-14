@@ -6,7 +6,7 @@ public class EmprestimoDTO
 {
     public int Id { get; set; }
     public int LivroId { get; set; }
-    public int UsuarioId { get; set; }
+    public string UsuarioId { get; set; } = string.Empty;
     public DateTime DataCriacao { get; set; }
     public DateTime DataDevolucaoPrevista { get; set; }
     public DateTime? DataDevolucaoEfetiva { get; set; }

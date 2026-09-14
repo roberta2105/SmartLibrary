@@ -14,24 +14,24 @@ public class EmprestimoService : IEmprestimoService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmprestimoRepository _emprestimoRepository;
     private readonly ILivroRepository _livroRepository;
-    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IIdentityService _identityService;
 
     public EmprestimoService(
         IMapper mapper,
         IUnitOfWork unitOfWork,
-        IEmprestimoRepository emprestimoRepository, 
+        IEmprestimoRepository emprestimoRepository,
         ILivroRepository livroRepository,
-        IUsuarioRepository usuarioRepository)
+        IIdentityService identityService)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _emprestimoRepository = emprestimoRepository;
         _livroRepository = livroRepository;
-        _usuarioRepository = usuarioRepository;
+        _identityService = identityService;
     }
 
     public async Task<IEnumerable<EmprestimoDTO>> GetAll(
-        int? usuarioId = null,
+        string? usuarioId = null,
         string? nomeUsuario = null,
         int? livroId = null,
         string? nomeLivro = null,
@@ -60,89 +60,121 @@ public class EmprestimoService : IEmprestimoService
         var emprestimo = await _emprestimoRepository.GetByIdAsync(id);
 
         if (emprestimo == null)
+        {
             throw new DomainExceptionValidation(
                 "Empréstimo inválido");
+        }
 
         return _mapper.Map<EmprestimoDTO>(emprestimo);
     }
 
     public async Task Add(CreateEmprestimoDTO emprestimoDto)
     {
-        var livro = await _livroRepository.GetByIdAsync(emprestimoDto.LivroId);
+        var livro = await _livroRepository.GetByIdAsync(
+            emprestimoDto.LivroId);
 
         if (livro == null)
+        {
             throw new DomainExceptionValidation(
                 "Livro inválido");
+        }
 
-        var usuario = await _usuarioRepository.GetByIdAsync(emprestimoDto.UsuarioId);
+        var usuario = await _identityService.GetById(
+            emprestimoDto.UsuarioId);
 
-        if (usuario == null)
+        if (usuario == null || usuario.DataExclusao.HasValue)
+        {
             throw new DomainExceptionValidation(
-                "Usuário inválido");
+                "Usuário inválido ");
+        }
 
-
-        var possuiMesmoLivroEmprestado = await _emprestimoRepository.HasEmprestimoUsuarioAsync(emprestimoDto.UsuarioId, emprestimoDto.LivroId, StatusEmprestimo.Emprestado);
+        var possuiMesmoLivroEmprestado =
+            await _emprestimoRepository.HasEmprestimoUsuarioAsync(
+                emprestimoDto.UsuarioId,
+                emprestimoDto.LivroId,
+                StatusEmprestimo.Emprestado);
 
         if (possuiMesmoLivroEmprestado)
+        {
             throw new DomainExceptionValidation(
                 "Não foi possível criar o empréstimo, pois o usuário já possui este livro emprestado.");
+        }
 
-
-        var possuiEmprestimoAtrasado = await _emprestimoRepository.HasEmprestimoUsuarioAsync(emprestimoDto.UsuarioId, null, StatusEmprestimo.Emprestado, true);
+        var possuiEmprestimoAtrasado =
+            await _emprestimoRepository.HasEmprestimoUsuarioAsync(
+                emprestimoDto.UsuarioId,
+                null,
+                StatusEmprestimo.Emprestado,
+                true);
 
         if (possuiEmprestimoAtrasado)
+        {
             throw new DomainExceptionValidation(
-                "Não foi possível criar o empréstimo, pois o usuário possui pendências de empréstimos atrasadas.");
+                "Não foi possível criar o empréstimo, pois o usuário possui pendências de empréstimos atrasadas. " +
+                "");
+        }
 
-
-        var possuiLimiteEmprestimos = await _emprestimoRepository.HasLimiteEmprestimoUsuarioAsync(emprestimoDto.UsuarioId);
+        var possuiLimiteEmprestimos =
+            await _emprestimoRepository.HasLimiteEmprestimoUsuarioAsync(
+                emprestimoDto.UsuarioId);
 
         if (possuiLimiteEmprestimos)
+        {
             throw new DomainExceptionValidation(
                 "Não foi possível criar o empréstimo, pois o usuário atingiu o limite de 5 empréstimos simultâneos.");
+        }
 
         if (livro.QuantidadeDisponivel <= 0)
+        {
             throw new DomainExceptionValidation(
-                "Não foi possível criar o empréstimo, pois o livro não possui saldo disponível.");
-
+                "Não foi possível criar o empréstimo, pois o livro não possui saldo disponível .");
+        }
+         
         livro.Emprestar();
 
-        var emprestimo = _mapper.Map<Emprestimo>(emprestimoDto);
+        var emprestimo = new Emprestimo(
+            emprestimoDto.LivroId,
+            emprestimoDto.UsuarioId);
 
         await _livroRepository.UpdateAsync(livro);
         await _emprestimoRepository.CreateAsync(emprestimo);
         await _unitOfWork.CommitAsync();
     }
 
-    public async Task<EmprestimoDTO?> Renovar(int id)
+    public async Task Renovar(int id)
     {
         var emprestimo = await _emprestimoRepository.GetByIdAsync(id);
 
         if (emprestimo == null)
+        {
             throw new DomainExceptionValidation(
-                "Empréstimo inválido");
+                "Empréstimo inválido ");
+        }
 
         emprestimo.Renovar();
 
         await _emprestimoRepository.UpdateAsync(emprestimo);
         await _unitOfWork.CommitAsync();
-
-        return _mapper.Map<EmprestimoDTO>(emprestimo);
     }
 
-    public async Task<EmprestimoDTO?> Devolver(int id)
+    public async Task Devolver(int id)
     {
         var emprestimo = await _emprestimoRepository.GetByIdAsync(id);
 
         if (emprestimo == null)
+        {
             throw new DomainExceptionValidation(
                 "Empréstimo inválido");
+        }
 
-        var livro = await _livroRepository.GetByIdAsync(emprestimo.LivroId);
+        var livro = await _livroRepository.GetByIdAsync(
+            emprestimo.LivroId);
 
         if (livro == null)
+        {
             throw new DomainExceptionValidation(
                 "Livro inválido");
+        }
 
         livro.Devolver();
         emprestimo.Devolver();
@@ -150,7 +182,5 @@ public class EmprestimoService : IEmprestimoService
         await _livroRepository.UpdateAsync(livro);
         await _emprestimoRepository.UpdateAsync(emprestimo);
         await _unitOfWork.CommitAsync();
-
-        return _mapper.Map<EmprestimoDTO>(emprestimo);
     }
 }

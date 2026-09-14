@@ -41,17 +41,33 @@ public class CategoriaService : ICategoriaService
 
     public async Task Add(CreateCategoriaDTO categoriaDto)
     {
-        var categoria = _mapper.Map<Categoria>(categoriaDto);
+        var categoriaExists = await _categoriaRepository.HasActiveCategoryWithSameNameAsync(categoriaDto.Nome);
 
-        await _categoriaRepository.CreateAsync(categoria);
+        if (categoriaExists)
+            throw new DomainExceptionValidation("Já existe uma categoria ativa com o mesmo nome.");
+
+        var categoria = new Categoria(categoriaDto.Nome);
+
+        await _categoriaRepository.CreateAsync(categoria); 
         await _unitOfWork.CommitAsync();
     }
 
     public async Task Update(UpdateCategoriaDTO categoriaDto)
-    {
-        var categoria = _mapper.Map<Categoria>(categoriaDto);
+    { 
+        var categoria = await _categoriaRepository.GetByIdAsync(categoriaDto.Id);
 
-        await _categoriaRepository.UpdateAsync(categoria);
+        if (categoria == null)
+            throw new DomainExceptionValidation(
+                "A categoria informada é inválida.");
+
+        var categoriaComMesmoNome = await _categoriaRepository.HasActiveCategoryWithSameNameAsync(categoriaDto.Nome, categoriaDto.Id);
+
+        if (categoriaComMesmoNome)
+            throw new DomainExceptionValidation("Já existe uma categoria ativa com o mesmo nome.");
+
+        categoria.Update(categoriaDto.Nome);
+
+        await _categoriaRepository.UpdateAsync(categoria);  
         await _unitOfWork.CommitAsync();
     }
 
@@ -61,7 +77,7 @@ public class CategoriaService : ICategoriaService
 
         if (categoria == null)
             throw new DomainExceptionValidation(
-                "Categoria inválida");
+                 "A categoria informada é inválida.");
 
         var categoriaComLivros = await _categoriaRepository.HasActiveLivrosAsync(id);
 

@@ -7,10 +7,10 @@ public interface IEmprestimoService
 {
     Task<EmprestimoDTO> GetById(int id);
     Task Add(CreateEmprestimoDTO emprestimoDto);
-    Task<EmprestimoDTO?> Renovar(int id);
-    Task<EmprestimoDTO?> Devolver(int id);
+    Task Renovar(int id);
+    Task Devolver(int id);
     Task<IEnumerable<EmprestimoDTO>> GetAll(
-         int? usuarioId = null,
+         string? usuarioId = null,
          string? nomeUsuario = null,
          int? livroId = null,
          string? nomeLivro = null,

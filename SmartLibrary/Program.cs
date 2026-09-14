@@ -1,4 +1,5 @@
 using CleanArchMvc_V2.Infra.IoC;
+using SmartLibrary.Infra.Data.Identity;
 using SmartLibrary.Infra.Ioc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,12 @@ builder.Services.AddControllers();
 //builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await IdentitySeeder.SeedRolesAsync(
+        scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

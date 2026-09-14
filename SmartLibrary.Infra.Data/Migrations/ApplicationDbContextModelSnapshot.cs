@@ -222,8 +222,9 @@ namespace SmartLibrary.Infra.Data.Migrations
                     b.Property<int>("StatusEmprestimo")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -290,52 +291,6 @@ namespace SmartLibrary.Infra.Data.Migrations
                     b.ToTable("Livros");
                 });
 
-            modelBuilder.Entity("SmartLibrary.Domain.Entities.Usuario", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Cpf")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataExclusao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Perfil")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SenhaHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telefone")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Usuarios");
-                });
-
             modelBuilder.Entity("SmartLibrary.Infra.Data.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -347,6 +302,16 @@ namespace SmartLibrary.Infra.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DataExclusao")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -360,6 +325,10 @@ namespace SmartLibrary.Infra.Data.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -379,6 +348,10 @@ namespace SmartLibrary.Infra.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Telefone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -457,18 +430,16 @@ namespace SmartLibrary.Infra.Data.Migrations
                     b.HasOne("SmartLibrary.Domain.Entities.Livro", "Livro")
                         .WithMany("Emprestimos")
                         .HasForeignKey("LivroId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SmartLibrary.Domain.Entities.Usuario", "Usuario")
-                        .WithMany("Emprestimos")
+                    b.HasOne("SmartLibrary.Infra.Data.Identity.ApplicationUser", null)
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Livro");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("SmartLibrary.Domain.Entities.Livro", b =>
@@ -488,11 +459,6 @@ namespace SmartLibrary.Infra.Data.Migrations
                 });
 
             modelBuilder.Entity("SmartLibrary.Domain.Entities.Livro", b =>
-                {
-                    b.Navigation("Emprestimos");
-                });
-
-            modelBuilder.Entity("SmartLibrary.Domain.Entities.Usuario", b =>
                 {
                     b.Navigation("Emprestimos");
                 });

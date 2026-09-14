@@ -8,25 +8,26 @@ using SmartLibrary.Application.Services;
 using SmartLibrary.Domain.Interfaces;
 using SmartLibrary.Infra.Data;
 using SmartLibrary.Infra.Data.Context;
+using SmartLibrary.Infra.Data.Identity;
 using SmartLibrary.Infra.Data.Repositories;
 
 namespace SmartLibrary.Infra.Ioc;
 
 public static class DependencyInjectionAPI
 {
-    public static IServiceCollection AddInfrastructureAPI(this IServiceCollection services,
-       IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureAPI(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
-      options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"
-          ), b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-
-       
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly(
+                    typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<ILivroRepository, LivroRepository>();
         services.AddScoped<IEmprestimoRepository, EmprestimoRepository>();
-        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -35,10 +36,18 @@ public static class DependencyInjectionAPI
         services.AddScoped<IEmprestimoService, EmprestimoService>();
         services.AddScoped<IUsuarioService, UsuarioService>();
 
-        //services.AddScoped<IAuthenticate, AuthenticateService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IIdentityAuthService, IdentityAuthService>();
 
-        services.AddAutoMapper(cfg => { }, typeof(DomainToDTOMappingProfile).Assembly);
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddAutoMapper(
+            cfg => { },
+            typeof(DomainToDTOMappingProfile).Assembly);
 
         return services;
     }
 }
+
