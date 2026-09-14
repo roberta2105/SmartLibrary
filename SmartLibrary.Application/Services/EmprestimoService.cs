@@ -85,7 +85,7 @@ public class EmprestimoService : IEmprestimoService
         if (usuario == null || usuario.DataExclusao.HasValue)
         {
             throw new DomainExceptionValidation(
-                "Usuário inválido");
+                "Usuário inválido ");
         }
 
         var possuiMesmoLivroEmprestado =
