@@ -147,7 +147,7 @@ public class EmprestimoService : IEmprestimoService
         if (emprestimo == null)
         {
             throw new DomainExceptionValidation(
-                "Empréstimo inválido");
+                "Empréstimo inválido ");
         }
 
         emprestimo.Renovar();
