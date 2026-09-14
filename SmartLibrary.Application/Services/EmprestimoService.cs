@@ -128,7 +128,7 @@ public class EmprestimoService : IEmprestimoService
             throw new DomainExceptionValidation(
                 "Não foi possível criar o empréstimo, pois o livro não possui saldo disponível.");
         }
-
+         
         livro.Emprestar();
 
         var emprestimo = new Emprestimo(
