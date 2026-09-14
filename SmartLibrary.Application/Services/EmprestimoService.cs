@@ -110,7 +110,8 @@ public class EmprestimoService : IEmprestimoService
         if (possuiEmprestimoAtrasado)
         {
             throw new DomainExceptionValidation(
-                "Não foi possível criar o empréstimo, pois o usuário possui pendências de empréstimos atrasadas.");
+                "Não foi possível criar o empréstimo, pois o usuário possui pendências de empréstimos atrasadas. " +
+                "");
         }
 
         var possuiLimiteEmprestimos =
