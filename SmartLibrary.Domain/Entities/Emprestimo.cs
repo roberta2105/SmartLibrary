@@ -6,24 +6,18 @@ namespace SmartLibrary.Domain.Entities;
 public sealed class Emprestimo : EntidadeBase
 {
     public StatusEmprestimo StatusEmprestimo { get; private set; }
-
     public DateTime DataDevolucaoPrevista { get; private set; }
-
     public DateTime? DataDevolucaoEfetiva { get; private set; }
-
     public int QuantidadeRenovacoes { get; private set; } = 0;
-
-    public bool EstaAtrasado =>
-    StatusEmprestimo == StatusEmprestimo.Emprestado &&
-    DataDevolucaoPrevista < DateTime.UtcNow.Date;
-
     public int LivroId { get; private set; }
-    public Livro Livro { get; private set; } = null!;
+    public Livro Livro { get; private set; }
+    public string UsuarioId { get; private set; }
+    public bool EstaAtrasado =>
+      StatusEmprestimo == StatusEmprestimo.Emprestado &&
+      DataDevolucaoPrevista < DateTime.UtcNow.Date;
 
-    public int UsuarioId { get; private set; }
-    public Usuario Usuario { get; private set; } = null!;
 
-    public Emprestimo(int livroId, int usuarioId)
+    public Emprestimo(int livroId, string usuarioId)
     {
         ValidateDomain(livroId, usuarioId);
 
@@ -64,12 +58,12 @@ public sealed class Emprestimo : EntidadeBase
     }
 
 
-    private void ValidateDomain(int livroId, int usuarioId)
+    private void ValidateDomain(int livroId, string usuarioId)
     {
         DomainExceptionValidation.When(livroId <= 0,
             "Livro inválido.");
 
-        DomainExceptionValidation.When(usuarioId <= 0,
+        DomainExceptionValidation.When(string.IsNullOrEmpty(usuarioId),
             "Usuário inválido.");
     }
 }

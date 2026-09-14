@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmartLibrary.Application.DTOs;
 using SmartLibrary.Application.Interfaces;
-using SmartLibrary.Domain.Entities;
 using SmartLibrary.Domain.Enums;
 
 namespace SmartLibrary.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class EmprestimosController : ControllerBase
 {
     private readonly IEmprestimoService _emprestimoService;
@@ -20,8 +19,9 @@ public class EmprestimosController : ControllerBase
 
 
     [HttpGet]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult<IEnumerable<EmprestimoDTO>>> Get(
-    [FromQuery] int? usuarioId = null,
+    [FromQuery] string? usuarioId = null,
     [FromQuery] int? livroId = null,
     [FromQuery] string? nomeLivro = null,
     [FromQuery] string? nomeUsuario = null,
@@ -51,6 +51,7 @@ public class EmprestimosController : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = "GetEmprestimo")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult<EmprestimoDTO>> Get(int id)
     {
         var emprestimo = await _emprestimoService.GetById(id);
@@ -64,6 +65,7 @@ public class EmprestimosController : ControllerBase
 
 
     [HttpPost]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Post([FromBody] CreateEmprestimoDTO emprestimoDto)
     {
         if (emprestimoDto == null)
@@ -75,24 +77,18 @@ public class EmprestimosController : ControllerBase
     }
 
     [HttpPut("{id:int}/renovar")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Renovar(int id)
     {
-        var emprestimo = await _emprestimoService.Renovar(id);
-
-        if (emprestimo == null)
-            return BadRequest("Empréstimo inválido");
-
-        return Ok(emprestimo);
+        await _emprestimoService.Renovar(id);
+        return NoContent();
     }
 
     [HttpPut("{id:int}/devolver")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Devolver(int id)
     {
-        var emprestimo = await _emprestimoService.Devolver(id);
-
-        if (emprestimo == null)
-            return BadRequest("Empréstimo inválido");
-
-        return Ok(emprestimo);
+        await _emprestimoService.Devolver(id);
+        return NoContent();
     }
 }

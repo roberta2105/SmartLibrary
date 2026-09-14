@@ -13,10 +13,11 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         _context = context;
     }
 
+    /*
     public async Task<TEntity> GetByIdAsync(int id)
     {
         return await _context.Set<TEntity>().FindAsync(id);
-    }
+    }*/
 
     public async Task<TEntity> CreateAsync(TEntity entity)
     {

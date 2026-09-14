@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmartLibrary.Application.DTOs.Categoria;
 using SmartLibrary.Application.Interfaces;
 
@@ -6,7 +7,6 @@ namespace SmartLibrary.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class CategoriasController : ControllerBase
 {
     private readonly ICategoriaService _categoriaService;
@@ -17,6 +17,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
     {
         var categorias = await _categoriaService.GetAll();
@@ -28,7 +29,8 @@ public class CategoriasController : ControllerBase
         return Ok(categorias);
     }
 
-    [HttpGet("{id:int}", Name = "GetCategoria")]
+    [HttpGet("{id:int}")]
+    [Authorize]
     public async Task<ActionResult<CategoriaDTO>> Get(int id)
     {
         var categoria = await _categoriaService.GetById(id);
@@ -42,6 +44,7 @@ public class CategoriasController : ControllerBase
 
 
     [HttpPost]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Post([FromBody] CreateCategoriaDTO categoriaDto)
     {
         if(categoriaDto == null)
@@ -54,6 +57,7 @@ public class CategoriasController : ControllerBase
 
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Put(int id, [FromBody] UpdateCategoriaDTO categoriaDto)
     {
         if (categoriaDto == null || id != categoriaDto.Id)
@@ -66,6 +70,7 @@ public class CategoriasController : ControllerBase
 
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Delete(int id)
     {
         await _categoriaService.Remove(id);

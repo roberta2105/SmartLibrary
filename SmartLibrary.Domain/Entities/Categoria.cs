@@ -23,8 +23,8 @@ namespace SmartLibrary.Domain.Entities
             DomainExceptionValidation.When(string.IsNullOrWhiteSpace(nome),
                 "O nome é obrigatório.");
 
-            DomainExceptionValidation.When(nome.Length > 50,
-               "O nome deve possuir no máximo 50 caracteres.");
+            DomainExceptionValidation.When(nome.Length > 20,
+               "O nome deve possuir no máximo 20 caracteres.");
 
             Nome = nome;
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartLibrary.Domain.Entities;
+using SmartLibrary.Infra.Data.Identity;
 
 namespace SmartLibrary.Infra.Data.EntitiesConfiguration;
 
@@ -22,12 +23,17 @@ public class EmprestimoConfiguration : IEntityTypeConfiguration<Emprestimo>
         builder.Property(x => x.QuantidadeRenovacoes)
             .IsRequired();
 
-        builder.HasOne(x => x.Livro)
-            .WithMany(x => x.Emprestimos)
-            .HasForeignKey(x => x.LivroId);
+        builder.Property(e => e.UsuarioId)
+            .IsRequired();
 
-        builder.HasOne(x => x.Usuario)
-            .WithMany(x => x.Emprestimos)
-            .HasForeignKey(x => x.UsuarioId);
+        builder.HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(e => e.UsuarioId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Livro)
+            .WithMany(l => l.Emprestimos)
+            .HasForeignKey(e => e.LivroId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

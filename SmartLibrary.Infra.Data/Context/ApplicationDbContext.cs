@@ -13,7 +13,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Livro> Livros { get; set; }
     public DbSet<Emprestimo> Emprestimos { get; set; }
-    public DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -7,6 +7,6 @@ public class CreateEmprestimoDTO
     [Range(1, int.MaxValue, ErrorMessage = "Livro inválido.")]
     public int LivroId { get; set; }
 
-    [Range(1, int.MaxValue, ErrorMessage = "Usuário inválido.")]
-    public int UsuarioId { get; set; }
+    [Required(ErrorMessage = "Usuário inválido.")]
+    public string UsuarioId { get; set; } = string.Empty;
 }

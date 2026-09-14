@@ -15,59 +15,8 @@ public class EmprestimoRepository : Repository<Emprestimo>, IEmprestimoRepositor
         _context = context;
     }
 
-    public async Task<bool> HasLimiteEmprestimoUsuarioAsync(int usuarioId)
-    {
-        var quantidadeEmprestimos = await _context.Emprestimos
-            .CountAsync(
-                  e => e.UsuarioId == usuarioId &&
-                  e.StatusEmprestimo == StatusEmprestimo.Emprestado
-            );
-
-        return quantidadeEmprestimos >= 5;
-    }
-
-    public async Task<bool> HasEmprestimoUsuarioAsync(
-         int usuarioId,
-         int? livroId,
-         StatusEmprestimo? statusEmprestimo = null,
-         bool? estaAtrasado = null)
-    {
-        var query = _context.Emprestimos
-            .Where(e => e.UsuarioId == usuarioId);
-
-        if (livroId != null)
-        {
-            query = query.Where(e => e.LivroId == livroId);
-        }
-
-        if (statusEmprestimo.HasValue)
-        {
-            query = query.Where(e =>
-                e.StatusEmprestimo == statusEmprestimo.Value);
-        }
-
-        if (estaAtrasado.HasValue)
-        {
-            if (estaAtrasado.Value)
-            {
-                query = query.Where(e =>
-                    e.StatusEmprestimo == StatusEmprestimo.Emprestado &&
-                    e.DataDevolucaoPrevista < DateTime.Now);
-            }
-            else
-            {
-                query = query.Where(e =>
-                    e.StatusEmprestimo != StatusEmprestimo.Emprestado ||
-                    e.DataDevolucaoPrevista >= DateTime.Now);
-            }
-        }
-
-        return await query.AnyAsync();
-    }
-
-
     public async Task<IEnumerable<Emprestimo>> GetAllAsync(
-            int? usuarioId = null,
+            string? usuarioId = null,
             string? nomeUsuario = null,
             int? livroId = null, string?
             nomeLivro = null, int?
@@ -80,11 +29,10 @@ public class EmprestimoRepository : Repository<Emprestimo>, IEmprestimoRepositor
     {
         var query = _context.Emprestimos
             .Include(x => x.Livro)
-            .Include(x => x.Usuario)
             .AsQueryable();
 
-        if (usuarioId.HasValue)
-            query = query.Where(x => x.UsuarioId == usuarioId.Value);
+        if (!string.IsNullOrWhiteSpace(usuarioId))
+            query = query.Where(x => x.UsuarioId == usuarioId);
 
         if (livroId.HasValue)
             query = query.Where(x => x.LivroId == livroId.Value);
@@ -93,7 +41,11 @@ public class EmprestimoRepository : Repository<Emprestimo>, IEmprestimoRepositor
             query = query.Where(x => x.Livro.Titulo.Contains(nomeLivro));
 
         if (!string.IsNullOrWhiteSpace(nomeUsuario))
-            query = query.Where(x => x.Usuario.Nome.Contains(nomeUsuario));
+            query = query.Where(x =>
+                _context.Users
+                    .Where(u => u.Nome.Contains(nomeUsuario))
+                    .Select(u => u.Id)
+                    .Contains(x.UsuarioId));
 
         if (quantidadeRenovacoes.HasValue)
             query = query.Where(x =>
@@ -133,6 +85,60 @@ public class EmprestimoRepository : Repository<Emprestimo>, IEmprestimoRepositor
         return await query.ToListAsync();
     }
 
- 
+    public async Task<Emprestimo?> GetByIdAsync(int id)
+    {
+        return await _context.Emprestimos
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<bool> HasLimiteEmprestimoUsuarioAsync(string usuarioId)
+    {
+        var quantidadeEmprestimos = await _context.Emprestimos
+            .CountAsync(e =>
+                  e.UsuarioId == usuarioId &&
+                  e.StatusEmprestimo == StatusEmprestimo.Emprestado
+            );
+
+        return quantidadeEmprestimos >= 5;
+    }
+
+    public async Task<bool> HasEmprestimoUsuarioAsync(
+         string usuarioId,
+         int? livroId,
+         StatusEmprestimo? statusEmprestimo = null,
+         bool? estaAtrasado = null)
+    {
+        var query = _context.Emprestimos
+            .Where(e => e.UsuarioId == usuarioId);
+
+        if (livroId.HasValue)
+        {
+            query = query.Where(e => e.LivroId == livroId.Value);
+        }
+
+        if (statusEmprestimo.HasValue)
+        {
+            query = query.Where(e =>
+                e.StatusEmprestimo == statusEmprestimo.Value);
+        }
+
+        if (estaAtrasado.HasValue)
+        {
+            if (estaAtrasado.Value)
+            {
+                query = query.Where(e =>
+                    e.StatusEmprestimo == StatusEmprestimo.Emprestado &&
+                    e.DataDevolucaoPrevista < DateTime.Now);
+            }
+            else
+            {
+                query = query.Where(e =>
+                    e.StatusEmprestimo != StatusEmprestimo.Emprestado ||
+                    e.DataDevolucaoPrevista >= DateTime.Now);
+            }
+        }
+
+        return await query.AnyAsync();
+    }
 }
 

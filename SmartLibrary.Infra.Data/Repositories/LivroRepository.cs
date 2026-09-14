@@ -16,12 +16,12 @@ public class LivroRepository : Repository<Livro>, ILivroRepository
     }
 
     public async Task<IEnumerable<Livro>> GetAllAsync(
-        string? titulo = null, 
-        string? descricao = null, 
-        string? autor = null, 
-        DateTime? dataPublicacao = null, 
-        string? isbn = null, 
-        int? categoriaId = null, 
+        string? titulo = null,
+        string? descricao = null,
+        string? autor = null,
+        DateTime? dataPublicacao = null,
+        string? isbn = null,
+        int? categoriaId = null,
         string? categoriaNome = null)
     {
         var query = _context.Livros
@@ -52,6 +52,13 @@ public class LivroRepository : Repository<Livro>, ILivroRepository
                 dataPublicacao.Value.Date);
 
         return await query.ToListAsync();
+    }
+
+    public async Task<Livro?> GetByIdAsync(int id)
+    {
+        return await _context.Livros
+            .Include(x => x.Categoria)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Livro?> GetByIsbnAsync(string isbn)

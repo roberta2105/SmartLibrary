@@ -2,7 +2,7 @@
 
 namespace SmartLibrary.Application.Interfaces;
 
-public interface IUsuarioService
+public interface IIdentityService
 {
     Task<IEnumerable<UsuarioDTO>> GetAll(
         string? nome = null,
@@ -17,7 +17,7 @@ public interface IUsuarioService
 
     Task Update(string id, UpdateUsuarioDTO usuarioDto);
 
-    Task UpdatePerfil(string id, string perfil);
+    Task UpdatePerfil(string id, string novoPerfil);
 
     Task<UsuarioDTO?> Deactivate(string id);
 }

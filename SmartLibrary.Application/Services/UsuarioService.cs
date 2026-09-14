@@ -1,31 +1,15 @@
-﻿using AutoMapper;
-using CleanArchMvc_V2.Domain.Validation;
-using SmartLibrary.Application.DTOs.Usuario;
+﻿using SmartLibrary.Application.DTOs.Usuario;
 using SmartLibrary.Application.Interfaces;
-using SmartLibrary.Domain.Entities;
-using SmartLibrary.Domain.Enums;
-using SmartLibrary.Domain.Interfaces;
-
 
 namespace SmartLibrary.Application.Services;
 
-public class UsuarioService : IUsuarioService 
+public class UsuarioService : IUsuarioService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly IEmprestimoRepository _emprestimoRepository;
+    private readonly IIdentityService _identityService;
 
-    public UsuarioService(
-        IMapper mapper,
-        IUnitOfWork unitOfWork,
-        IUsuarioRepository usuarioRepository,
-        IEmprestimoRepository emprestimoRepository)
+    public UsuarioService(IIdentityService identityService)
     {
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-        _usuarioRepository = usuarioRepository;
-        _emprestimoRepository = emprestimoRepository;
+        _identityService = identityService;
     }
 
     public async Task<IEnumerable<UsuarioDTO>> GetAll(
@@ -33,98 +17,38 @@ public class UsuarioService : IUsuarioService
         string? email = null,
         string? cpf = null,
         string? telefone = null,
-        PerfilUsuario? perfil = null)
+        string? perfil = null)
     {
-        var usuarios = await _usuarioRepository.GetAllAsync(
+        return await _identityService.GetAll(
             nome,
             email,
             cpf,
             telefone,
-            perfil
-        );
-        return _mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
+            perfil);
     }
 
-    public async Task<UsuarioDTO> GetById(int id)
+    public async Task<UsuarioDTO?> GetById(string id)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(id);
-
-        return _mapper.Map<UsuarioDTO>(usuario);
-
+        return await _identityService.GetById(id);
     }
 
     public async Task Add(CreateUsuarioDTO usuarioDto)
     {
-        var cpfExistente = await _usuarioRepository.GetByCpfAsync(usuarioDto.Cpf);
-
-        if (cpfExistente != null)
-            throw new DomainExceptionValidation(
-                "O CPF informado pertence à outro usuário cadastrado no sistema");
-
-        var emailExistente = await _usuarioRepository.GetByEmailAsync(usuarioDto.Email);
-
-        if (emailExistente != null)
-            throw new DomainExceptionValidation(
-                "O e-mail informado pertence à outro usuário cadastrado no sistema");
-
-        var usuario = _mapper.Map<Usuario>(usuarioDto);
-
-        await _usuarioRepository.CreateAsync(usuario);
-        await _unitOfWork.CommitAsync();
+        await _identityService.Add(usuarioDto);
     }
 
-    public async Task Update(UpdateUsuarioDTO usuarioDto)
+    public async Task Update(string id, UpdateUsuarioDTO usuarioDto)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(usuarioDto.Id);
-
-        if (usuario == null)
-            throw new DomainExceptionValidation(
-                "O usuário informado é inválido.");
-
-
-        var cpfExistente = await _usuarioRepository.GetByCpfAsync(usuarioDto.Cpf);
-
-        if (cpfExistente != null && cpfExistente.Id != usuarioDto.Id)
-            throw new DomainExceptionValidation(
-                "O CPF informado pertence à outro usuário cadastrado no sistema");
-
-
-        var emailExistente = await _usuarioRepository.GetByEmailAsync(usuarioDto.Email);
-
-        if (emailExistente != null && emailExistente.Id != usuarioDto.Id)
-            throw new DomainExceptionValidation(
-                "O e-mail informado pertence à outro usuário cadastrado no sistema");
-
-        usuario.Update(
-            usuarioDto.Nome,
-            usuarioDto.Email,
-            usuarioDto.Cpf,
-            usuarioDto.Telefone,
-            usuarioDto.Perfil
-        );
-
-        await _usuarioRepository.UpdateAsync(usuario);
-        await _unitOfWork.CommitAsync();
+        await _identityService.Update(id, usuarioDto);
     }
 
-    public async Task<UsuarioDTO?> Deactivate(int id)
+    public async Task UpdatePerfil(string id, string novoPerfil)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(id);
+        await _identityService.UpdatePerfil(id, novoPerfil);
+    }
 
-        if (usuario == null)
-            throw new DomainExceptionValidation(
-                "Usuário inválido.");
-
-        var possuiEmprestimoAtivo = await _emprestimoRepository.HasEmprestimoUsuarioAsync(usuario.Id, null, StatusEmprestimo.Emprestado);
-
-        if (possuiEmprestimoAtivo)
-            throw new DomainExceptionValidation(
-                "Não é possível inativar o usuário, pois ele possui um empréstimo ativo.");
-
-        usuario.Deactivate();
-        await _usuarioRepository.UpdateAsync(usuario);
-        await _unitOfWork.CommitAsync();
-
-        return _mapper.Map<UsuarioDTO>(usuario);
+    public async Task<UsuarioDTO?> Deactivate(string id)
+    {
+        return await _identityService.Deactivate(id);
     }
 }

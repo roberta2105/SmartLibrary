@@ -19,6 +19,22 @@ public class CategoriaRepository : Repository<Categoria>, ICategoriaRepository
         return await _context.Categorias.ToListAsync();
     }
 
+    public async Task<Categoria?> GetByIdAsync(int id)
+    {
+        return await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task<bool> HasActiveCategoryWithSameNameAsync(string categoryName, int? categoriaId)
+    {
+        return await _context.Categorias
+            .AnyAsync(c => 
+                c.Nome == categoryName &&
+                c.Id != categoriaId
+            );
+
+    }
+
     public async Task<bool> HasActiveLivrosAsync(int categoriaId)
     {
         return await _context.Livros

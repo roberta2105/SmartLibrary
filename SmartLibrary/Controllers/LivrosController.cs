@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmartLibrary.Application.DTOs.Livro;
 using SmartLibrary.Application.Interfaces;
-using SmartLibrary.Domain.Entities;
 
 namespace SmartLibrary.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class LivrosController : ControllerBase
 {
     private readonly ILivroService _livroService;
@@ -18,6 +17,7 @@ public class LivrosController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<LivroDTO>>> Get(
           [FromQuery] string? titulo = null,
           [FromQuery] string? descricao = null,
@@ -45,6 +45,7 @@ public class LivrosController : ControllerBase
 
 
     [HttpGet("{id:int}", Name = "GetLivro")]
+    [Authorize]
     public async Task<ActionResult<LivroDTO>> Get(int id)
     {
         var livro = await _livroService.GetById(id);
@@ -58,6 +59,7 @@ public class LivrosController : ControllerBase
 
 
     [HttpPost]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Post([FromBody] CreateLivroDTO livroDto)
     {
         if(livroDto == null)
@@ -70,6 +72,7 @@ public class LivrosController : ControllerBase
 
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Put(int id, [FromBody] UpdateLivroDTO livroDto)
     {
         if (livroDto == null || id != livroDto.Id)
@@ -82,6 +85,7 @@ public class LivrosController : ControllerBase
 
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<ActionResult> Deactivate(int id)
     {
         await _livroService.Deactivate(id);
