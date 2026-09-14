@@ -4,6 +4,7 @@ namespace SmartLibrary.Application.DTOs;
 
 public class CreateEmprestimoDTO
 {
+    [Required(ErrorMessage = "Livro inválido.")]
     [Range(1, int.MaxValue, ErrorMessage = "Livro inválido.")]
     public int LivroId { get; set; }
 

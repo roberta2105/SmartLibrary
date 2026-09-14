@@ -149,7 +149,7 @@ namespace SmartLibrary.Domain.Entities
                 "O ID da categoria é inválido.");
 
             DomainExceptionValidation.When(quantidadeTotal < 0,
-                "A quantidade total deve ser maior do que zero.");
+                "A quantidade total não pode ser negativa.");
         }
     }
 }
